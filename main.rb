@@ -66,18 +66,16 @@ while login_in_process
       input = gets.chomp
       puts "Please enter your Password"
       input = gets.chomp
+      login_successful = false
       CSV.open("login.csv", "r") do |csv|
         csv.each { |line|
+        if line[0] == operator_id && line[1] == password
+          login_successful = true
+          puts "Login successful"
+          logged_in = true
+        else
+          puts "Login unsuccessful! Please check your Employee ID and password and try again."
           login_successful = false
-        if line[0] == operator_id
-          if line[1] == password
-            login_successful = true
-            puts "Login successful"
-            logged_in = true
-          else
-            login_successful = false
-            puts "Login unsuccessful! Please check your Employee ID and password and try again."
-          end
         end
         }
       end
