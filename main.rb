@@ -33,48 +33,57 @@ require "csv"
 operators_list = []
 login_in_process = true
 
-while login_in_process 
-  puts "Welcome to the Offline Vehicle Pre-start Application"
-  puts "Please select from the options:"
-  puts "LOGIN, CREATE an account or QUIT."
-  input = gets.chomp
-  if input == "create"
-    puts "Please enter your Employee ID."
-    operator_id = gets.chomp
-    puts "Please enter a password."
-    password = gets.chomp
-    operator = {}
-    operator[:operator_id] = operator_id
-    operator[:password] = password
-    operators_list.push(operator)    
-    existing_employee = true
-    CSV.open("login.csv", "a+") { |csv|
-      csv.each { |line|
-        if line[0] == operator_id
-          puts "That Employee ID already exists."
-        end
-        if existing_employee = false
-          csv.push([operator_id, password])
-        end
-      }
-    }
-  elsif input == "login"
-    puts "Please enter your Employee ID."
+while login_in_process
+  logged_in = false
+  until logged_in
+    puts "Welcome to the Offline Vehicle Pre-start Application"
+    puts "Please select from the options:"
+    puts "LOGIN, CREATE an account or QUIT."
     input = gets.chomp
-    puts "Please enter your Password"
-    input = gets.chomp
-    CSV.open("login.csv", "r") do |csv|
-      csv.each { |line|
-      if line[0] == operator_id
-        if line[1] == password
-          puts "Login successful"
-        else
-          puts "Login unsuccessful! Please check your Employee ID and password and try again."
+    if input == "create"
+      puts "Please enter your Employee ID."
+      operator_id = gets.chomp
+      puts "Please enter a password."
+      password = gets.chomp
+      operator = {}
+      operator[:operator_id] = operator_id
+      operator[:password] = password
+      operators_list.push(operator)
+      CSV.open("login.csv", "a+") do |csv|
+        existing_employee = false
+        csv.each do |line|
+          if line[0] == operator_id
+            puts "That Employee ID already exists."
+            existing_employee = true
+          elsif existing_employee == false
+            csv << [operator_id,password]
+            logged_in = true
+          end
         end
       end
-      }
+    elsif input == "login"
+      puts "Please enter your Employee ID."
+      input = gets.chomp
+      puts "Please enter your Password"
+      input = gets.chomp
+      CSV.open("login.csv", "r") do |csv|
+        csv.each { |line|
+          login_successful = false
+        if line[0] == operator_id
+          if line[1] == password
+            login_successful = true
+            puts "Login successful"
+            logged_in = true
+          else
+            login_successful = false
+            puts "Login unsuccessful! Please check your Employee ID and password and try again."
+          end
+        end
+        }
+      end
+    elsif input == "quit"
+      login_in_process = false
+      logged_in = true
     end
-  else
-    input == "quit"
-    login_in_process = false
   end
+end
