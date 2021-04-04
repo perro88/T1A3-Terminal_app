@@ -11,7 +11,6 @@
 # - If username is already existing show error and ask for username and password again
 # - If username does not exist, sign user in.
 
-
 # require colorize to highlight each option for input
 # warnings = []
 
@@ -27,9 +26,9 @@ require "csv"
 # employee = { employee_id: "1111", password: "pw123" }
 
 # File.open("login.csv", "a") {|file|
-    #   file.write("#{operator_id},#{password}\n")
-    # }
-    
+#   file.write("#{operator_id},#{password}\n")
+# }
+
 operators_list = []
 login_in_process = true
 
@@ -51,12 +50,12 @@ while login_in_process
       operators_list.push(operator)
       CSV.open("login.csv", "a+") do |csv|
         existing_employee = false
-        csv.each do |line|
+        csv.map do |line|
           if line[0] == operator_id
             puts "That Employee ID already exists."
             existing_employee = true
           elsif existing_employee == false
-            csv << [operator_id,password]
+            csv << [operator_id, password]
             logged_in = true
           end
         end
@@ -68,16 +67,17 @@ while login_in_process
       input = gets.chomp
       login_successful = false
       CSV.open("login.csv", "r") do |csv|
-        csv.each { |line|
-        if line[0] == operator_id && line[1] == password
-          login_successful = true
-          puts "Login successful"
-          logged_in = true
-        else
-          puts "Login unsuccessful! Please check your Employee ID and password and try again."
-          login_successful = false
+        csv.each do |line|
+          if line[0] == operator_id
+            line[1] == password
+            login_successful = true
+            puts "Login successful"
+            logged_in = true
+          else
+            puts "Login unsuccessful! Please check your Employee ID and password and try again."
+            login_successful = false
+          end
         end
-        }
       end
     elsif input == "quit"
       login_in_process = false
