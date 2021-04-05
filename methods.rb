@@ -1,0 +1,3 @@
+def checklist
+  checklist = []
+  puts
