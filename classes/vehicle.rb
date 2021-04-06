@@ -9,44 +9,21 @@
 # ---------------------------------------------------------------
 require "csv"
 
-def print_from_csv()
+def print_from_csv
   CSV.open("csv/light_vehicles.csv", "a+") do |csv|
-      csv.each do |row|
-          p row
-      end
+    csv.each do |row|
+      p row
+    end
   end
-  end
- 
-print_from_csv()
+end
 
-
+print_from_csv
 
 # CSV.open("csv/light_vehicles.csv", "a+") do |csv|
 #   p csv
 # end
 
-
-
-
-
-
-
-
-
-
 # light_vehicle = File.open("light_vehicles.csv", "a+")
-
-
-
-
-
-
-
-
-
-
-
-
 
 # cars = []
 
