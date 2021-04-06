@@ -1,99 +1,109 @@
-# pre- start checklist
-
-# Feature: User can create an account and sign in.
-# Implementation:
-
-# - Prompt user if they would like to create an account or sign in
-# - If sign in ask for username and password
-# - Check username and password against existing user records
-# - Sign in if correct/ show error if not and ask for username and password again
-# - If creating an account ask for username and password
-# - If username is already existing show error and ask for username and password again
-# - If username does not exist, sign user in.
-
-# login
-
-# CSV.open("employees.csv") do |employee_id, password|
-#     csv.each do |employee_id, password|
-#            login.new(note[0], note[1], note[2], note[3])
-#     end
-# end
-
-# File.open("employees.csv", "a") {|file|
-#   file.write("#{operator_id},#{password}\n")
-# }
-
 # require colorize to highlight each option for input
 require "csv"
+require "tty-prompt"
+prompt = TTY::Prompt.new
+
 login_in_process = true
 
-def find_employee(id)
-  CSV.open("./csv/employees.csv", "r") do |csv|
-    record = csv.select { |line| line[0] == id }.first
+def find_user(username)
+  CSV.open("./csv/users.csv", "r") do |csv|
+    record = csv.select { |line| line[0] == username }.first
 
-    if record
-      return { operator_id: record[0], password: record[1] }
-    end
+    return { username: record[0], password: record[1] } if record
   end
 end
 
-def create_employee(operator_id, password)
-  CSV.open("./csv/employees.csv", "a+") do |csv|
-      csv << [operator_id, password]
+def create_user(username, password)
+  CSV.open("./csv/users.csv", "a+") do |csv|
+    csv << [username, password]
   end
 end
 
+# while login_in_process
+#   logged_in = false
 
+#   until logged_in
+#     puts "Welcome to the Offline Vehicle Pre-start Application"
 
-while login_in_process
-  logged_in = false
+#     input = prompt.select("What would you like to do?", %w(login create_account quit))
+# _
+#     if input.downcase == "create_account"
+#       validation_run = false
+#       username_is_valid = false
 
-  until logged_in
+#       until username_is_valid
+#         puts "That username already exists..." if validation_run
+#         puts "Please enter your username."
+
+#         username_input = gets.chomp
+#         username_is_valid = find_user(username_input).nil?
+#         validation_run = true
+#       end
+
+#       puts "Please enter a password."
+#       password = gets.chomp
+
+#       create_user(username_input, password)
+#       logged_in = true
+
+#     elsif input == "login"
+#   elsif input == "quit"
+# login_in_process = false
+# logged_in = true
+# end
+# end
+#   end
+# end
+
+class App < TTY::Prompt
+  attr_accessor :is_logged_in, :user, :wrong_password, :show_username_warning
+
+  def start
     puts "Welcome to the Offline Vehicle Pre-start Application"
-    puts "Please select from the options:"
-    puts "LOGIN, CREATE an account or QUIT."
-    input = gets.chomp
+    action = self.select("What would you like to do?", %w[login create_account quit])
+    start_action(action)
+  end
 
-    if input.downcase == "create"
-      validation_run = false
-      operator_id_is_valid = false
+  def start_action(action)
+    case action
+    when "login"
+      login
+    when "create_account"
+      puts "create account"
+    else
+      puts "Quit"
+    end
+  end
 
-      until operator_id_is_valid
-        puts "That Employee ID already exists..." if validation_run
-        puts "Please enter your Employee ID."
+  def login
+    puts "login method"
+    unless self.user
+      puts "Username doesn't exist" if self.show_username_warning
+      puts "Please enter your username."
+      username_input = gets.chomp
+      self.user = find_user(username_input)
 
-        operator_id = gets.chomp
-        operator_id_is_valid = find_employee(operator_id).nil?
-        validation_run = true
-      end
+      self.show_username_warning = true
 
-      puts "Please enter a password."
-      password = gets.chomp
-      create_employee(operator_id, password)
-      logged_in = true
+      login if !self.user
+    end
 
+    puts "Wrong password" if wrong_password
+    puts "Please enter your Password"
+    password_input = gets.chomp
 
-    elsif input == "login"
-      employee = nil
-      input_recieved = false
-      until employee
-        puts "Incorrect Employee ID" if input_recieved
-        puts "Please enter your Employee ID."
-        id_input = gets.chomp
-        input_recieved = true
-        employee = find_employee(id_input)
-      end
-      puts "Please enter your Password"
-      password_input = gets.chomp
-      if password_input == employee[:password]
-        puts "Login successful"
-      else 
-        puts "login unsuccessful"
-      end
-      login_successful = false
-    elsif input == "quit"
-      login_in_process = false
-      logged_in = true
+    self.is_logged_in = password_input == user[:password]
+
+    if is_logged_in
+      puts "Login successful"
+      return
+    else
+      puts "IS LOGGED IN#{is_logged_in}"
+      self.wrong_password = true
+      login
+      # puts "login unsuccessful"
     end
   end
 end
+
+App.new.start
