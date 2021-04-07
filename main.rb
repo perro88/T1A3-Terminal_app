@@ -3,8 +3,6 @@ require "tty-prompt"
 
 prompt = TTY::Prompt.new
 logged_in = false
-lv1_list = []
-headers = nil
 
 def find_user(username)
   CSV.open("./csv/users.csv", "r") do |csv|
@@ -87,7 +85,27 @@ if logged_in
   vehicles = prompt.select("Please select from the following vehicles:", %w[LV1 LV2 LV3 LV4 LV5])
   case vehicles
   when "LV1"
-    checklist
+    prompt.yes?("Reverse Alarm")
+    prompt.yes?("Brakes")
+    prompt.yes?("Fire Extinguisher")
+    prompt.yes?("First Aid kit")
+    prompt.yes?("Fuel Level")
+    prompt.yes?("Gauges")
+    prompt.yes?("Glass")
+    prompt.yes?("Heater/Defroster")
+    prompt.yes?("Horn")
+    prompt.yes?("Lights/Beacon")
+    prompt.yes?("Oil Level")
+    prompt.yes?("Seat Belts")
+    prompt.yes?("Steering")
+    prompt.yes?("Tires")
+    prompt.yes?("Wheel Chocks")
+    prompt.yes?("Wipers")
+    prompt.yes?("Body")
+    prompt.yes?("Doors")
+    prompt.yes?("Spill kit")
+    prompt.yes?("Backup Lights")
+    prompt.yes?("Turn Signals")
   when "LV2"
     checklist
   when "LV3"
