@@ -1,15 +1,51 @@
-# require colorize to highlight each option for input
 require "csv"
 require "tty-prompt"
-prompt = TTY::Prompt.new
 
-login_in_process = true
+prompt = TTY::Prompt.new
+logged_in = false
 
 def find_user(username)
   CSV.open("./csv/users.csv", "r") do |csv|
     record = csv.select { |line| line[0] == username }.first
-
     return { username: record[0], password: record[1] } if record
+  end
+end
+
+def find_password(password)
+  CSV.open("./csv/users.csv", "r") do |csv|
+    record = csv.select { |line| line [1] == password }.first
+    return {username: record[0], password: record[1] } if record
+  end
+end
+
+def login
+  puts "please enter your username."
+  username_input = gets.chomp
+  valid_username = find_user(username_input)
+  unless valid_username
+    puts "Username doesn't exist!"
+    login
+  end
+  puts "Please enter your password"
+  password_input = gets.chomp
+  valid_password = find_password(password_input)
+  return if valid_password
+
+  puts "incorrect password!"
+  login
+end
+
+def new_user
+  puts "Please enter a username"
+  username_input = gets.chomp
+  valid_username = find_user(username_input)
+  if valid_username
+    puts "Username already exist!"
+    new_user
+  else
+    puts "Please enter a password"
+    password_input = gets.chomp
+    create_user(username_input, password_input)
   end
 end
 
@@ -19,91 +55,28 @@ def create_user(username, password)
   end
 end
 
-# while login_in_process
-#   logged_in = false
+until logged_in
+  puts "Welcome to the Offline Vehicle Pre-start Application"
+  input = prompt.select("Please choose one of the following options:", %w[Login New_User Quit])
+  case input
 
-#   until logged_in
-#     puts "Welcome to the Offline Vehicle Pre-start Application"
-
-#     input = prompt.select("What would you like to do?", %w(login create_account quit))
-# _
-#     if input.downcase == "create_account"
-#       validation_run = false
-#       username_is_valid = false
-
-#       until username_is_valid
-#         puts "That username already exists..." if validation_run
-#         puts "Please enter your username."
-
-#         username_input = gets.chomp
-#         username_is_valid = find_user(username_input).nil?
-#         validation_run = true
-#       end
-
-#       puts "Please enter a password."
-#       password = gets.chomp
-
-#       create_user(username_input, password)
-#       logged_in = true
-
-#     elsif input == "login"
-#   elsif input == "quit"
-# login_in_process = false
-# logged_in = true
-# end
-# end
-#   end
-# end
-
-class App < TTY::Prompt
-  attr_accessor :is_logged_in, :user, :wrong_password, :show_username_warning
-
-  def start
-    puts "Welcome to the Offline Vehicle Pre-start Application"
-    action = self.select("What would you like to do?", %w[login create_account quit])
-    start_action(action)
+  when "Login"
+    login
+    logged_in = true
+  when "New_User"
+    new_user
+    logged_in = true
+  else
+    puts "Thank you please drive safely."
+    break
   end
-
-  def start_action(action)
-    case action
-    when "login"
-      login
-    when "create_account"
-      puts "create account"
-    else
-      puts "Quit"
-    end
-  end
-
-  def login
-    puts "login method"
-    unless self.user
-      puts "Username doesn't exist" if self.show_username_warning
-      puts "Please enter your username."
-      username_input = gets.chomp
-      self.user = find_user(username_input)
-
-      self.show_username_warning = true
-
-      login if !self.user
-    end
-
-    puts "Wrong password" if wrong_password
-    puts "Please enter your Password"
-    password_input = gets.chomp
-
-    self.is_logged_in = password_input == user[:password]
-
-    if is_logged_in
-      puts "Login successful"
-      return
-    else
-      puts "IS LOGGED IN#{is_logged_in}"
-      self.wrong_password = true
-      login
-      # puts "login unsuccessful"
-    end
-  end
+  next
 end
 
-App.new.start
+if logged_in
+  vehicles = prompt.select("Please select from the following vehicles:", %w[LV1 LV2 LV3 LV4 LV5])
+  case vehicles
+  when "LV1"
+    puts "lv1"
+  end
+end

@@ -12,7 +12,15 @@ require "csv"
 prompt = TTY::Prompt.new
 
 class Vehicle < TTY::Prompt
-  def initialize
+  attr_accessor :make, :registration
+
+  def initialize(make, registration)
+    @make = make
+    @registration = registration
+  end
+
+  def full_vehicle_details
+    "#{@make} #{@registration}"
   end
 end
 
