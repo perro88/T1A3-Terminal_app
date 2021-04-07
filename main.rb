@@ -3,6 +3,8 @@ require "tty-prompt"
 
 prompt = TTY::Prompt.new
 logged_in = false
+lv1_list = []
+headers = nil
 
 def find_user(username)
   CSV.open("./csv/users.csv", "r") do |csv|
@@ -13,8 +15,8 @@ end
 
 def find_password(password)
   CSV.open("./csv/users.csv", "r") do |csv|
-    record = csv.select { |line| line [1] == password }.first
-    return {username: record[0], password: record[1] } if record
+    record = csv.select { |line| line[1] == password }.first
+    return { username: record[0], password: record[1] } if record
   end
 end
 
@@ -55,6 +57,14 @@ def create_user(username, password)
   end
 end
 
+def checklist
+  CSV.open("./csv/checklist.csv", "a+") do |csv|
+    csv.each do |row|
+      puts row
+    end
+  end
+end
+
 until logged_in
   puts "Welcome to the Offline Vehicle Pre-start Application"
   input = prompt.select("Please choose one of the following options:", %w[Login New_User Quit])
@@ -77,6 +87,14 @@ if logged_in
   vehicles = prompt.select("Please select from the following vehicles:", %w[LV1 LV2 LV3 LV4 LV5])
   case vehicles
   when "LV1"
-    puts "lv1"
+    checklist
+  when "LV2"
+    checklist
+  when "LV3"
+    checklist
+  when "LV4"
+    checklist
+  when "LV5"
+    checklist
   end
 end
