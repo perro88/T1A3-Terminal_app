@@ -34,10 +34,12 @@ def admin
   puts "Please enter your ADMIN password"
   admin_password = gets.chomp
   valid_admin_password = find_user("admin", 1, admin_password)
-  vehicle_select if valid_admin_password
+  vehicle_list if valid_admin_password
 
-  puts "Incorrect ADMIN password"
-  admin
+  if !valid_admin_password
+    puts "Incorrect ADMIN password"
+    admin
+  end
 end
 
 def new_user
@@ -64,18 +66,39 @@ def checklist
   prompt = TTY::Prompt.new
   checklist = CSV.parse(File.read("./csv/checklist.csv"))
   answers = []
-  answerkey = { true => "Pass", false => "Fail" }
+  answer_key = { true => "Pass", false => "Fail" }
   checklist.each do |line|
     passed = prompt.yes?(line) do |q|
       q.suffix "Pass/Fail"
     end
-    answers.push("#{line} #{answerkey[passed]}")
+    answers.push("#{line} #{answer_key[passed]}")
   end
   answers
 end
 
-def vehicle_select
-  puts "vehicles list here"
+def print_vehicles
+  CSV.open("./csv/vehicles.csv", "a+") do |csv|
+    csv.each do |row|
+      p row
+    end
+  end
+end
+
+def add_vehicle(vehicle_make, vehicle_registration)
+  CSV.open("./csv/vehicles.csv", "a+") do |csv|
+    csv << [vehicle_make, vehicle_registration]
+  end
+end
+
+def vehicle_list
+  print_vehicles
+  puts "Enter the make of the vehicle"
+  vehicle_make = gets.chomp
+  puts "Enter vehicle registration"
+  vehicle_registration = gets.chomp
+  add_vehicle(vehicle_make, vehicle_registration)
+  puts "vehicle added!"
+  exit
 end
 
 until logged_in
