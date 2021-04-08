@@ -4,6 +4,20 @@ require "tty-prompt"
 prompt = TTY::Prompt.new
 logged_in = false
 
+def find_admin(username)
+  CSV.open("./csv/admin.csv", "r") do |csv|
+    record = csv.select { |line| line[0] == username }.first
+    return { username: record[0], password: record[1] } if record
+  end
+end
+
+def find_admin_password(password)
+  CSV.open("./csv/admin.csv", "r") do |csv|
+    record = csv.select { |line| line[1] == password }.first
+    return { username: record[0], password: record[1] } if record
+  end
+end
+  
 def find_user(username)
   CSV.open("./csv/users.csv", "r") do |csv|
     record = csv.select { |line| line[0] == username }.first
@@ -21,6 +35,8 @@ end
 def login
   puts "please enter your username."
   username_input = gets.chomp
+  admin_user = find_admin(username_input)
+  admin if admin_user
   valid_username = find_user(username_input)
   unless valid_username
     puts "Username doesn't exist!"
@@ -31,8 +47,18 @@ def login
   valid_password = find_password(password_input)
   return if valid_password
 
-  puts "incorrect password!"
+  puts "Incorrect password!"
   login
+end
+
+def admin
+  puts "Please enter your ADMIN password"
+  admin_password = gets.chomp
+  valid_admin_password = find_admin_password(admin_password)
+  vehicle_select if valid_admin_password
+
+  puts "Incorrect ADMIN password"
+  admin
 end
 
 def new_user
@@ -56,11 +82,20 @@ def create_user(username, password)
 end
 
 def checklist
-  CSV.open("./csv/checklist.csv", "a+") do |csv|
-    csv.each do |row|
-      puts row
+  prompt = TTY::Prompt.new
+  checklist = CSV.parse(File.read("./csv/checklist.csv"))
+  answers = []
+  checklist.each do |line|
+    passed = prompt.yes?(line) do |q|
+      q.suffix "Pass/Fail"
     end
+    answers.push("#{line} #{passed}")
   end
+  answers
+end
+
+def vehicle_select
+  puts "vehicles list here"
 end
 
 until logged_in
@@ -85,27 +120,7 @@ if logged_in
   vehicles = prompt.select("Please select from the following vehicles:", %w[LV1 LV2 LV3 LV4 LV5])
   case vehicles
   when "LV1"
-    prompt.yes?("Reverse Alarm")
-    prompt.yes?("Brakes")
-    prompt.yes?("Fire Extinguisher")
-    prompt.yes?("First Aid kit")
-    prompt.yes?("Fuel Level")
-    prompt.yes?("Gauges")
-    prompt.yes?("Glass")
-    prompt.yes?("Heater/Defroster")
-    prompt.yes?("Horn")
-    prompt.yes?("Lights/Beacon")
-    prompt.yes?("Oil Level")
-    prompt.yes?("Seat Belts")
-    prompt.yes?("Steering")
-    prompt.yes?("Tires")
-    prompt.yes?("Wheel Chocks")
-    prompt.yes?("Wipers")
-    prompt.yes?("Body")
-    prompt.yes?("Doors")
-    prompt.yes?("Spill kit")
-    prompt.yes?("Backup Lights")
-    prompt.yes?("Turn Signals")
+     puts checklist
   when "LV2"
     checklist
   when "LV3"
