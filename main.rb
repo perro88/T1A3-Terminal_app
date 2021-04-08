@@ -36,7 +36,7 @@ def admin
   valid_admin_password = find_user("admin", 1, admin_password)
   vehicle_list if valid_admin_password
 
-  if !valid_admin_password
+  unless valid_admin_password
     puts "Incorrect ADMIN password"
     admin
   end
