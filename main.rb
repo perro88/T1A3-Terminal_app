@@ -4,30 +4,9 @@ require "tty-prompt"
 prompt = TTY::Prompt.new
 logged_in = false
 
-def find_admin(username)
-  CSV.open("./csv/admin.csv", "r") do |csv|
-    record = csv.select { |line| line[0] == username }.first
-    return { username: record[0], password: record[1] } if record
-  end
-end
-
-def find_admin_password(password)
-  CSV.open("./csv/admin.csv", "r") do |csv|
-    record = csv.select { |line| line[1] == password }.first
-    return { username: record[0], password: record[1] } if record
-  end
-end
-  
-def find_user(username)
-  CSV.open("./csv/users.csv", "r") do |csv|
-    record = csv.select { |line| line[0] == username }.first
-    return { username: record[0], password: record[1] } if record
-  end
-end
-
-def find_password(password)
-  CSV.open("./csv/users.csv", "r") do |csv|
-    record = csv.select { |line| line[1] == password }.first
+def find_user(path, index, search)
+  CSV.open("./csv/#{path}.csv", "r") do |csv|
+    record = csv.select { |line| line[index] == search }.first
     return { username: record[0], password: record[1] } if record
   end
 end
@@ -35,16 +14,16 @@ end
 def login
   puts "please enter your username."
   username_input = gets.chomp
-  admin_user = find_admin(username_input)
+  admin_user = find_user("admin", 0, username_input)
   admin if admin_user
-  valid_username = find_user(username_input)
+  valid_username = find_user("users", 0, username_input)
   unless valid_username
     puts "Username doesn't exist!"
     login
   end
   puts "Please enter your password"
   password_input = gets.chomp
-  valid_password = find_password(password_input)
+  valid_password = find_user("users", 1, password_input)
   return if valid_password
 
   puts "Incorrect password!"
@@ -54,7 +33,7 @@ end
 def admin
   puts "Please enter your ADMIN password"
   admin_password = gets.chomp
-  valid_admin_password = find_admin_password(admin_password)
+  valid_admin_password = find_user("admin", 1, admin_password)
   vehicle_select if valid_admin_password
 
   puts "Incorrect ADMIN password"
@@ -64,7 +43,7 @@ end
 def new_user
   puts "Please enter a username"
   username_input = gets.chomp
-  valid_username = find_user(username_input)
+  valid_username = find_user("users", 0, username_input)
   if valid_username
     puts "Username already exist!"
     new_user
@@ -85,11 +64,12 @@ def checklist
   prompt = TTY::Prompt.new
   checklist = CSV.parse(File.read("./csv/checklist.csv"))
   answers = []
+  answerkey = { true => "Pass", false => "Fail" }
   checklist.each do |line|
     passed = prompt.yes?(line) do |q|
       q.suffix "Pass/Fail"
     end
-    answers.push("#{line} #{passed}")
+    answers.push("#{line} #{answerkey[passed]}")
   end
   answers
 end
@@ -120,7 +100,7 @@ if logged_in
   vehicles = prompt.select("Please select from the following vehicles:", %w[LV1 LV2 LV3 LV4 LV5])
   case vehicles
   when "LV1"
-     puts checklist
+    puts checklist
   when "LV2"
     checklist
   when "LV3"
