@@ -84,21 +84,52 @@ def print_vehicles
   end
 end
 
-def add_vehicle(vehicle_make, vehicle_registration)
+def add_to_vehicle_list(vehicle_make, vehicle_registration)
   CSV.open("./csv/vehicles.csv", "a+") do |csv|
     csv << [vehicle_make, vehicle_registration]
   end
 end
 
-def vehicle_list
-  print_vehicles
+def add_vehicle
   puts "Enter the make of the vehicle"
   vehicle_make = gets.chomp
   puts "Enter vehicle registration"
   vehicle_registration = gets.chomp
-  add_vehicle(vehicle_make, vehicle_registration)
+  add_to_vehicle_list(vehicle_make, vehicle_registration)
   puts "vehicle added!"
-  exit
+end
+
+def remove_vehicle
+  prompt = TTY::Prompt.new
+  vehicles_to_remove = CSV.parse(File.read("./csv/vehicles.csv")).map do |arr|
+    arr.join(" ")
+  end
+  p vehicles_to_remove
+  del_arr = prompt.multi_select("Which vehicle would you like to delete?", vehicles_to_remove, help: "Space bar to select, Enter to confirm.")
+  del_arr.each do |vehicle|
+    vehicles_to_remove.delete(vehicle)
+  end
+  p vehicles_to_remove
+  CSV.open("./csv/vehicles.csv", "w") do |csv|
+    csv << vehicles_to_remove
+  end
+end
+
+def vehicle_list
+  prompt = TTY::Prompt.new
+  print_vehicles
+  admin_menu = prompt.select("Administration menu:", %w[Remove_Vehicle Add_Vehicle Quit])
+  case admin_menu
+  when "Remove_Vehicle"
+    remove_vehicle
+    vehicle_list
+  when "Add_Vehicle"
+    add_vehicle
+    vehicle_list
+  else
+    puts "Thank you have a nice day"
+    exit
+  end
 end
 
 until logged_in
@@ -114,7 +145,7 @@ until logged_in
     logged_in = true
   else
     puts "Thank you please drive safely."
-    break
+    exit
   end
   next
 end
