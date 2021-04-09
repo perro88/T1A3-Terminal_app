@@ -24,7 +24,7 @@ def login
   puts "Please enter your password"
   password_input = gets.chomp
   valid_password = find_user("users", 1, password_input)
-  return if valid_password
+  return username_input if valid_password
 
   puts "Incorrect password!"
   login
@@ -54,11 +54,18 @@ def new_user
     password_input = gets.chomp
     create_user(username_input, password_input)
   end
+  username_input
 end
 
 def create_user(username, password)
   CSV.open("./csv/users.csv", "a+") do |csv|
     csv << [username, password]
+  end
+end
+
+def save_details(line)
+  CSV.open("./csv/checklist_results.csv", "a+") do |csv|
+    csv << line
   end
 end
 
@@ -68,12 +75,19 @@ def checklist
   answers = []
   answer_key = { true => "Pass", false => "Fail" }
   checklist.each do |line|
-    passed = prompt.yes?(line) do |q|
+    passed = prompt.yes?(line[0]) do |q|
       q.suffix "Pass/Fail"
     end
-    answers.push("#{line} #{answer_key[passed]}")
+    # answers[line[0]] = answer_key[passed]
+    answers.push([line[0], answer_key[passed]])
   end
   answers
+end
+
+def select_vehicle
+  select_vehicle = CSV.parse(File.read("./csv/vehicles.csv")).map do |arr|
+    arr.join(" ")
+  end
 end
 
 def print_vehicles
@@ -104,20 +118,22 @@ def remove_vehicle
   vehicles_to_remove = CSV.parse(File.read("./csv/vehicles.csv")).map do |arr|
     arr.join(" ")
   end
-  p vehicles_to_remove
-  del_arr = prompt.multi_select("Which vehicle would you like to delete?", vehicles_to_remove, help: "Space bar to select, Enter to confirm.")
+  del_arr = prompt.multi_select("Which vehicle would you like to delete?", vehicles_to_remove,
+                                help: "Space bar to select, Enter to confirm.")
   del_arr.each do |vehicle|
     vehicles_to_remove.delete(vehicle)
   end
-  p vehicles_to_remove
+  vehicles_to_remove.map!(&:split)
   CSV.open("./csv/vehicles.csv", "w") do |csv|
-    csv << vehicles_to_remove
+  end
+  CSV.open("./csv/vehicles.csv", "a") do |csv|
+    vehicles_to_remove.each { |v| csv << v }
   end
 end
 
 def vehicle_list
   prompt = TTY::Prompt.new
-  print_vehicles
+  # print_vehicles
   admin_menu = prompt.select("Administration menu:", %w[Remove_Vehicle Add_Vehicle Quit])
   case admin_menu
   when "Remove_Vehicle"
@@ -138,10 +154,10 @@ until logged_in
   case input
 
   when "Login"
-    login
+    username = login
     logged_in = true
   when "New_User"
-    new_user
+    username = new_user
     logged_in = true
   else
     puts "Thank you please drive safely."
@@ -151,17 +167,12 @@ until logged_in
 end
 
 if logged_in
-  vehicles = prompt.select("Please select from the following vehicles:", %w[LV1 LV2 LV3 LV4 LV5])
-  case vehicles
-  when "LV1"
-    puts checklist
-  when "LV2"
-    checklist
-  when "LV3"
-    checklist
-  when "LV4"
-    checklist
-  when "LV5"
-    checklist
-  end
+  vehicle = prompt.select("Please select from the following vehicles:", select_vehicle)
+  answers = checklist
+  line = username, vehicle
+  answers.each { |array| line.push(array[1]) }
+  save_details(line)
+  puts "Your vehicle pre-start has been saved!"
+  puts "Drive Safely"
+  exit
 end
