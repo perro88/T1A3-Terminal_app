@@ -1,29 +1,34 @@
 require "csv"
 require "tty-prompt"
+require_relative "modules/users"
+include Users
 
 prompt = TTY::Prompt.new
 logged_in = false
+$username_from_arg = nil
 
-def find_user(path, index, search)
-  CSV.open("./csv/#{path}.csv", "r") do |csv|
-    record = csv.select { |line| line[index] == search }.first
-    return { username: record[0], password: record[1] } if record
+ARGV.each do |arg|
+  if arg.include?('-u=')
+  $username_from_arg = arg.gsub('-u=', '')
+  end
+  if arg.include?('-p=')
+  $password_from_arg = arg.gsub('-p=', '')
   end
 end
 
 def login
   puts "please enter your username."
-  username_input = gets.chomp
-  admin_user = find_user("admin", 0, username_input)
+  username_input = $username_from_arg || gets.chomp
+  admin_user = Users.find("admin", 0, username_input)
   admin if admin_user
-  valid_username = find_user("users", 0, username_input)
+  valid_username = Users.find("users", 0, username_input)
   unless valid_username
     puts "Username doesn't exist!"
     login
   end
   puts "Please enter your password"
-  password_input = gets.chomp
-  valid_password = find_user("users", 1, password_input)
+  password_input = $password_from_arg || gets.chomp
+  valid_password = Users.find("users", 1, password_input)
   return username_input if valid_password
 
   puts "Incorrect password!"
@@ -33,7 +38,7 @@ end
 def admin
   puts "Please enter your ADMIN password"
   admin_password = gets.chomp
-  valid_admin_password = find_user("admin", 1, admin_password)
+  valid_admin_password = Users.find("admin", 1, admin_password)
   vehicle_list if valid_admin_password
 
   unless valid_admin_password
@@ -45,7 +50,7 @@ end
 def new_user
   puts "Please enter a username"
   username_input = gets.chomp
-  valid_username = find_user("users", 0, username_input)
+  valid_username = Users.find("users", 0, username_input)
   if valid_username
     puts "Username already exist!"
     new_user
@@ -118,8 +123,7 @@ def remove_vehicle
   vehicles_to_remove = CSV.parse(File.read("./csv/vehicles.csv")).map do |arr|
     arr.join(" ")
   end
-  del_arr = prompt.multi_select("Which vehicle would you like to delete?", vehicles_to_remove,
-                                help: "Space bar to select, Enter to confirm.")
+  del_arr = prompt.multi_select("Which vehicle would you like to delete?", vehicles_to_remove, help: "Space bar to select, Enter to confirm.")
   del_arr.each do |vehicle|
     vehicles_to_remove.delete(vehicle)
   end
@@ -150,7 +154,14 @@ end
 
 until logged_in
   puts "Welcome to the Offline Vehicle Pre-start Application"
-  input = prompt.select("Please choose one of the following options:", %w[Login New_User Quit])
+
+  if $username_from_arg && $password_from_arg
+    puts "LOGGING IN"
+    login
+  end
+
+  input = prompt.select("Please choose one of the following options:", %w[Login New_User Vehicles_log Quit])
+
   case input
 
   when "Login"
@@ -159,6 +170,12 @@ until logged_in
   when "New_User"
     username = new_user
     logged_in = true
+  when "Vehicles_log"
+    CSV.open("./csv/checklist_results.csv", "r") do |csv|
+      csv.each do |row|
+        p row
+      end
+    end
   else
     puts "Thank you please drive safely."
     exit
