@@ -47,26 +47,7 @@ def admin
   end
 end
 
-def new_user
-  puts "Please enter a username"
-  username_input = gets.chomp
-  valid_username = Users.find("users", 0, username_input)
-  if valid_username
-    puts "Username already exist!"
-    new_user
-  else
-    puts "Please enter a password"
-    password_input = gets.chomp
-    create_user(username_input, password_input)
-  end
-  username_input
-end
 
-def create_user(username, password)
-  CSV.open("./csv/users.csv", "a+") do |csv|
-    csv << [username, password]
-  end
-end
 
 def save_details(line)
   CSV.open("./csv/checklist_results.csv", "a+") do |csv|

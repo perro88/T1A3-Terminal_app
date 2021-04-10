@@ -1,9 +1,23 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    diff-lcs (1.4.4)
     pastel (0.8.0)
       tty-color (~> 0.5)
     power_assert (2.0.0)
+    rspec (3.10.0)
+      rspec-core (~> 3.10.0)
+      rspec-expectations (~> 3.10.0)
+      rspec-mocks (~> 3.10.0)
+    rspec-core (3.10.1)
+      rspec-support (~> 3.10.0)
+    rspec-expectations (3.10.1)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-mocks (3.10.2)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.10.0)
+    rspec-support (3.10.2)
     test-unit (3.4.0)
       power_assert
     tty-color (0.6.0)
@@ -22,6 +36,7 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
+  rspec (~> 3.10)
   test-unit (~> 3.4)
   tty-prompt (~> 0.23.0)
 

@@ -16,3 +16,11 @@ elton,john
 yogi,bear
 xxx,xxx
 Kito,zzz
+john,smith
+"{:username=>""foo""}","{:password=>""bar""}"
+"{:username=>""foo""}","{:password=>""bar""}"
+"{:username=>""testuser""}","{:password=>""password""}"
+"{:username=>""testuser""}","{:password=>""password""}"
+"{:username=>""testuser""}","{:password=>""password""}"
+"[{:username=>""username""}]","[{:password=>""password""}]"
+username,password
