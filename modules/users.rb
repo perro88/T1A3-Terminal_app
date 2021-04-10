@@ -1,12 +1,12 @@
 require "csv"
 
+# This module contains methods like searches for username and password info for users and admins
 module Users
   def csv_path
     ENV['CSV_PATH'] || "csv"
   end
-  def find(path, index, search)
-    
 
+  def find(path, index, search)
     CSV.open("./#{csv_path}/#{path}.csv", "r") do |csv|
       record = csv.select { |line| line[index] == search }.first
       return { username: record[0], password: record[1] } if record
@@ -31,6 +31,18 @@ module Users
   def create_user(username, password)
     CSV.open("./#{csv_path}/users.csv", "a+") do |csv|
       csv << [username, password]
+    end
+  end
+
+  def admin
+    puts "Please enter your ADMIN password"
+    admin_password = gets.chomp
+    valid_admin_password = Users.find("admin", 1, admin_password)
+    vehicle_list if valid_admin_password
+
+    unless valid_admin_password
+      puts "Incorrect ADMIN password"
+      admin
     end
   end
 end
