@@ -1,5 +1,9 @@
-require "csv"
-require "tty-prompt"
+require 'csv'
+require 'tty-prompt'
+require 'colorize'
+require 'tty-font'
+require 'pastel'
+
 require_relative "modules/users"
 require_relative "modules/vehicles"
 require_relative "modules/checklist"
@@ -7,6 +11,8 @@ include Users
 include Vehicles
 include Checklist
 
+pastel = Pastel.new
+font = TTY::Font.new(:straight)
 prompt = TTY::Prompt.new
 logged_in = false
 $username_from_arg = nil
@@ -21,36 +27,34 @@ ARGV.each do |arg|
 end
 
 def login
-  puts "please enter your username."
+  pastel = Pastel.new
+  puts pastel.cyan("Please enter your username.")
   username_input = $username_from_arg || gets.chomp
   admin_user = Users.find("admin", 0, username_input)
   admin if admin_user
   valid_username = Users.find("users", 0, username_input)
   unless valid_username
-    puts "Username doesn't exist!"
+    puts "Username doesn't exist!".red
     login
   end
-  puts "Please enter your password"
+  puts pastel.cyan("Please enter your password")
   password_input = $password_from_arg || gets.chomp
   valid_password = Users.find("users", 1, password_input)
   return username_input if valid_password
 
-  puts "Incorrect password!"
+  puts "Incorrect password!".red
   login
 end
 
 until logged_in
-  puts "Welcome to the Offline Vehicle Pre-start Application"
-
+  puts font.write("Welcome to the Offline Vehicle Pre-start Application").light_blue.on_black
   if $username_from_arg && $password_from_arg
-    puts "Bash login successful please select LOGIN to continue"
+    puts "Bash login successful please select LOGIN to continue".green
     login
   end
 
-  input = prompt.select("Please choose one of the following options:", %w[Login New_User Quit])
-
+  input = prompt.select("Please choose one of the following options:".yellow, %w[Login New_User Quit])
   case input
-
   when "Login"
     username = login
     logged_in = true
@@ -58,7 +62,7 @@ until logged_in
     username = new_user
     logged_in = true
   else
-    puts "Thank you please drive safely."
+    puts pastel.bright_magenta("Thank you please drive safely.")
     exit
   end
   next

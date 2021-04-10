@@ -1,4 +1,5 @@
 require "csv"
+require "colorize"
 
 # This module contains methods like searches for username and password info for users and admins
 module Users
@@ -18,7 +19,7 @@ module Users
     username_input = gets.chomp
     valid_username = Users.find("users", 0, username_input)
     if valid_username
-      puts "Username already exist!"
+      puts "Username already exist!".red
       new_user
     else
       puts "Please enter a password"
@@ -41,7 +42,7 @@ module Users
     vehicle_list if valid_admin_password
 
     unless valid_admin_password
-      puts "Incorrect ADMIN password"
+      puts "Incorrect ADMIN password".red
       admin
     end
   end
