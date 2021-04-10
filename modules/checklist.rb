@@ -1,4 +1,5 @@
 require "csv"
+require "colorize"
 
 # This module contains methods to open a checklist template with a pass/fail prompt
 # and a method to save the altered checklist
@@ -13,7 +14,7 @@ module Checklist
     prompt = TTY::Prompt.new
     checklist = CSV.parse(File.read("./csv/checklist.csv"))
     answers = []
-    answer_key = { true => "Pass", false => "Fail" }
+    answer_key = { true => "Pass", false => "Fail".red }
     checklist.each do |line|
       passed = prompt.yes?(line[0]) do |q|
         q.suffix "Pass/Fail"

@@ -47,7 +47,9 @@ def login
 end
 
 until logged_in
-  puts font.write("Welcome to the Offline Vehicle Pre-start Application").light_blue.on_black
+  puts font.write("Welcome").light_blue.on_black
+  puts font.write("to the").light_blue.on_black
+  puts font.write("Offline Vehicle Pre-start Application").light_blue.on_black
   if $username_from_arg && $password_from_arg
     puts "Bash login successful please select LOGIN to continue".green
     login
@@ -69,12 +71,12 @@ until logged_in
 end
 
 if logged_in
-  vehicle = prompt.select("Please select from the following vehicles:", select_vehicle)
+  vehicle = prompt.select("Please select from the following vehicles:".yellow, select_vehicle)
   answers = checklist
   line = username, vehicle
   answers.each { |array| line.push(array[1]) }
   save_details(line)
-  puts "Your vehicle pre-start has been saved!"
-  puts "Drive Safely"
+  puts "Your vehicle pre-start has been saved!".green
+  puts pastel.bright_magenta("Drive Safely")
   exit
 end

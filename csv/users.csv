@@ -24,3 +24,4 @@ john,smith
 "{:username=>""testuser""}","{:password=>""password""}"
 "[{:username=>""username""}]","[{:password=>""password""}]"
 username,password
+johnny,smitty

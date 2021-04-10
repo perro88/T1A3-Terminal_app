@@ -1,6 +1,6 @@
 require "csv"
 require "colorize"
-
+require "pastel"
 # This module contains methods like searches for username and password info for users and admins
 module Users
   def csv_path
@@ -15,14 +15,15 @@ module Users
   end
 
   def new_user
-    puts "Please enter a username"
+    pastel = Pastel.new
+    puts pastel.cyan("Please enter a username")
     username_input = gets.chomp
     valid_username = Users.find("users", 0, username_input)
     if valid_username
       puts "Username already exist!".red
       new_user
     else
-      puts "Please enter a password"
+      puts pastel.cyan("Please enter a password")
       password_input = gets.chomp
       create_user(username_input, password_input)
     end
@@ -36,7 +37,7 @@ module Users
   end
 
   def admin
-    puts "Please enter your ADMIN password"
+    puts "Please enter your ADMIN password".cyan
     admin_password = gets.chomp
     valid_admin_password = Users.find("admin", 1, admin_password)
     vehicle_list if valid_admin_password

@@ -1,4 +1,6 @@
 require "csv"
+require "colorize"
+require "pastel"
 
 # This module contains methods that can add, remove, and print the list of vehicles
 # most methods are activated with the admin login
@@ -25,12 +27,13 @@ module Vehicles
   end
  
   def add_vehicle
-    puts "Enter the make of the vehicle"
+    pastel = Pastel.new
+    puts pastel.cyan("Enter the make of the vehicle")
     vehicle_make = gets.chomp
-    puts "Enter vehicle registration"
+    puts pastel.cyan("Enter vehicle registration")
     vehicle_registration = gets.chomp
     add_to_vehicle_list(vehicle_make, vehicle_registration)
-    puts "vehicle added!"
+    puts "vehicle added!".green
   end
 
   def remove_vehicle
@@ -38,7 +41,7 @@ module Vehicles
     vehicles_to_remove = CSV.parse(File.read("./csv/vehicles.csv")).map do |arr|
       arr.join(" ")
     end
-    del_arr = prompt.multi_select("Which vehicle would you like to delete?", vehicles_to_remove, help: "Space bar to select, Enter to confirm.")
+    del_arr = prompt.multi_select("Which vehicle would you like to delete?".yellow, vehicles_to_remove, help: "Space bar to select, Enter to confirm.".blue)
     del_arr.each do |vehicle|
       vehicles_to_remove.delete(vehicle)
     end
@@ -59,9 +62,10 @@ module Vehicles
   end
 
   def vehicle_list
+    pastel = Pastel.new
     prompt = TTY::Prompt.new
     print_vehicles
-    admin_menu = prompt.select("Administration menu:", %w[Remove_Vehicle Add_Vehicle Vehicles_log Quit])
+    admin_menu = prompt.select("Administration menu:".yellow, %w[Remove_Vehicle Add_Vehicle Vehicles_log Quit])
     case admin_menu
     when "Remove_Vehicle"
       remove_vehicle
@@ -73,7 +77,7 @@ module Vehicles
       vehicle_log
       vehicle_list
     else
-      puts "Thank you have a nice day"
+      puts pastel.bright_magenta("Thank you have a nice day")
       exit
     end
   end
