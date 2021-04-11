@@ -13,7 +13,7 @@ module Vehicles
   end
  
   def print_vehicles
-    CSV.open("./csv/vehicles.csv", "a+") do |csv|
+    CSV.open("./#{csv_path}/vehicles.csv", "a+") do |csv|
       csv.each do |row|
         p row
       end
@@ -21,7 +21,7 @@ module Vehicles
   end
  
   def add_to_vehicle_list(vehicle_make, vehicle_registration)
-    CSV.open("./csv/vehicles.csv", "a+") do |csv|
+    CSV.open("./#{csv_path}/vehicles.csv", "a+") do |csv|
       csv << [vehicle_make, vehicle_registration]
     end
   end
