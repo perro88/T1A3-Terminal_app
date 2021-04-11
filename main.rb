@@ -7,6 +7,7 @@ require 'pastel'
 require_relative "modules/users"
 require_relative "modules/vehicles"
 require_relative "modules/checklist"
+
 include Users
 include Vehicles
 include Checklist
